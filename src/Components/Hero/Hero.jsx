@@ -6,6 +6,48 @@ import Modal from '../Modal/Modal'
 
 const Hero = ({ setActiveSection }) => {
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  
+  // Profile photo state with localStorage persistence
+  const [profilePhoto, setProfilePhoto] = useState(() => {
+    const saved = localStorage.getItem('portfolio_user_profile_photo');
+    return saved || profile_img;
+  });
+
+  const [photoUrlInput, setPhotoUrlInput] = useState('');
+
+  // Handle Photo File Upload
+  const handlePhotoFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhoto(reader.result);
+        localStorage.setItem('portfolio_user_profile_photo', reader.result);
+        setShowPhotoModal(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle Photo URL Input
+  const handlePhotoUrlSubmit = (e) => {
+    e.preventDefault();
+    if (photoUrlInput.trim()) {
+      setProfilePhoto(photoUrlInput.trim());
+      localStorage.setItem('portfolio_user_profile_photo', photoUrlInput.trim());
+      setPhotoUrlInput('');
+      setShowPhotoModal(false);
+    }
+  };
+
+  // Handle Remove / Delete Custom Photo
+  const handleDeletePhoto = () => {
+    if (window.confirm("Remove custom photo and reset to default?")) {
+      setProfilePhoto(profile_img);
+      localStorage.removeItem('portfolio_user_profile_photo');
+    }
+  };
 
   const handleDownloadResume = () => {
     const element = document.createElement("a");
@@ -61,7 +103,20 @@ ACHIEVEMENTS:
 
   return (
     <div id='home' className='hero'>
-        <img src={profile_img} alt="Bushetty Aditya Kalyan" />
+        <div className="hero-profile-wrapper">
+          <img src={profilePhoto} alt="Bushetty Aditya Kalyan" className="hero-profile-img" />
+          <div className="hero-photo-controls">
+            <button className="hero-photo-btn" onClick={() => setShowPhotoModal(true)}>
+              📷 Change Photo
+            </button>
+            {profilePhoto !== profile_img && (
+              <button className="hero-photo-btn delete-btn" onClick={handleDeletePhoto}>
+                🗑️ Remove
+              </button>
+            )}
+          </div>
+        </div>
+
         <h1><span>I'm Bushetty Aditya Kalyan,</span> a aspirant in the Software Sector</h1>
         <p>Student at CMR Engineering College, Hyderabad | B.Tech CSE (AI & ML) | CGPA: 8.53</p>
         <div className="hero-action">
@@ -72,6 +127,69 @@ ACHIEVEMENTS:
               My Resume
             </div>
         </div>
+
+        {/* Modal: Change Profile Photo */}
+        <Modal isOpen={showPhotoModal} onClose={() => setShowPhotoModal(false)} title="🖼️ Update Profile Photo Icon">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ color: '#0af739', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                Option 1: Upload Photo from Your Device
+              </label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handlePhotoFileUpload}
+                style={{
+                  background: '#1f1f23',
+                  border: '1px solid #3d3d4e',
+                  color: 'white',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }} 
+              />
+            </div>
+
+            <div style={{ textAlign: 'center', color: '#666', fontWeight: '600' }}>— OR —</div>
+
+            <form onSubmit={handlePhotoUrlSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ color: '#0af739', fontWeight: '600' }}>
+                Option 2: Paste Image URL
+              </label>
+              <input 
+                type="url" 
+                placeholder="https://example.com/my-photo.jpg" 
+                value={photoUrlInput} 
+                onChange={(e) => setPhotoUrlInput(e.target.value)} 
+                style={{
+                  background: '#1f1f23',
+                  border: '1px solid #3d3d4e',
+                  color: 'white',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button 
+                type="submit" 
+                style={{
+                  background: 'linear-gradient(267deg,#0af739 -5.09%,#4d03fa 106.28%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '25px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  alignSelf: 'flex-end',
+                  marginTop: '5px'
+                }}>
+                Save Photo
+              </button>
+            </form>
+          </div>
+        </Modal>
 
         <Modal isOpen={showResumeModal} onClose={() => setShowResumeModal(false)} title="Bushetty Aditya Kalyan - Official Resume">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: '75vh', overflowY: 'auto', paddingRight: '10px' }}>

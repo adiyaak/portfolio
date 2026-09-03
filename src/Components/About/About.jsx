@@ -5,6 +5,8 @@ import profile from '../../assets/profile_img.jpg'
 
 
 const About = ({ activeSection }) => {
+  const profilePhoto = localStorage.getItem('portfolio_user_profile_photo') || profile;
+
   return (
     <div id='about' className='about'>
         <div className="about-title">
@@ -13,7 +15,7 @@ const About = ({ activeSection }) => {
         </div>
         <div className="about-sections">
             <div className="about-left">
-                <img src={profile} alt="" />
+                <img src={profilePhoto} alt="Bushetty Aditya Kalyan" />
             </div>
             <div className="about-right">
                 <div className="about-para">
